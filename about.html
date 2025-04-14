@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Moda Córdoba</title>
+    <link rel="stylesheet" href="resources/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <img src="resources/img/Logo.png" alt="Moda Córdoba" class="logo">
+            <h2 class="main-title">Moda Córdoba</h2>
+        </div>
+        <nav class="nav-buttons">
+            <a href="index.html" class="sidebar-button">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="prendas.html" class="sidebar-button">
+                <i class="fas fa-tshirt"></i>
+                <span>Prendas</span>
+            </a>
+            <a href="accesorios.html" class="sidebar-button">
+                <i class="fas fa-ring"></i>
+                <span>Accesorios</span>
+            </a>
+            <a href="contacto.html" class="sidebar-button">
+                <i class="fas fa-phone"></i>
+                <span>Contacto</span>
+            </a>
+            <a href="about.html" class="sidebar-button active">
+                <i class="fas fa-info-circle"></i>
+                <span>About Us</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <h1>About Us</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-profile" id="userProfileBtn">
+                    <img src="resources/img/DefaultUser.png" alt="Profile" class="profile-img">
+                    <i class="fas fa-chevron-down" id="profileArrow"></i>
+                </div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <div class="dropdown-content">
+                        <a href="login.html" class="dropdown-item">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Log In
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="registro.html" class="dropdown-item">
+                            <i class="fas fa-user-plus"></i>
+                            Sign Up
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <h2>Sobre Nosotros</h2>
+            <div class="about-content">
+                <div class="about-section">
+                    <h3>Nuestra Historia</h3>
+                    <p>Moda Córdoba nació en el corazón de la ciudad con la visión de ofrecer moda de calidad para todos los estilos. Desde nuestros comienzos, nos esforzamos por brindar una experiencia de compra única, enfocada en la elegancia y la autenticidad.</p>
+                </div>
+                <div class="about-section">
+                    <h3>Nuestra Misión</h3>
+                    <p>Nos dedicamos a proporcionar las últimas tendencias en moda con un enfoque en la accesibilidad, calidad y atención personalizada. Buscamos inspirar confianza y estilo en cada cliente que nos elige.</p>
+                </div>
+                <div class="about-section">
+                    <h3>Nuestros Valores</h3>
+                    <ul>
+                        <li>Calidad</li>
+                        <li>Innovación</li>
+                        <li>Servicio al Cliente</li>
+                        <li>Sostenibilidad</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="resources/js/app.js" type="module"></script>
+</body>
+</html>
