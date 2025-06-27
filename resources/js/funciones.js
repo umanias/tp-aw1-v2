@@ -1,5 +1,5 @@
 export function renderizadoPrendas(contenedor) {
-    fetch('./resources/datos/tienda.json')
+    fetch('/resources/datos/tienda.json')
         .then((respuesta) => {
             const datosJson = respuesta.json();
             return datosJson;
@@ -21,7 +21,7 @@ export function renderizadoPrendas(contenedor) {
 }
 
 export function renderizadoAccesorios(contenedor) {
-    fetch('./resources/datos/tienda.json')
+    fetch('/resources/datos/tienda.json')
         .then((respuesta) => respuesta.json())
         .then((datosFinales) => {
             datosFinales.accesorios.forEach(producto => {
