@@ -46,38 +46,55 @@ export function setupDropdownMenu(userBtnId, menuId, arrowId) {
     const userProfileBtn = document.getElementById(userBtnId);
     const dropdownMenu = document.getElementById(menuId);
     const profileArrow = document.getElementById(arrowId);
-  
+
     if (!userProfileBtn || !dropdownMenu || !profileArrow) return;
-  
+
     userProfileBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdownMenu.classList.toggle("show");
-      profileArrow.classList.toggle("rotate");
+        e.stopPropagation();
+        dropdownMenu.classList.toggle("show");
+        profileArrow.classList.toggle("rotate");
     });
-  
+
     document.addEventListener("click", () => {
-      dropdownMenu.classList.remove("show");
-      profileArrow.classList.remove("rotate");
+        dropdownMenu.classList.remove("show");
+        profileArrow.classList.remove("rotate");
     });
 }
 
 export function togglePasswordVisibility(inputId, buttonId) {
     const passwordInput = document.getElementById(inputId);
     const toggleButton = document.getElementById(buttonId);
-  
+
     if (!passwordInput || !toggleButton) return;
-  
+
     toggleButton.addEventListener('click', () => {
-      const icon = toggleButton.querySelector('i');
-  
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-      } else {
-        passwordInput.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-      }
+        const icon = toggleButton.querySelector('i');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
     });
-  }
+}
+
+export function marcarBotonActivo() {
+    const botones = document.querySelectorAll('.sidebar-button');
+    const currentPath = window.location.pathname;
+
+    botones.forEach(boton => {
+        const botonHref = boton.getAttribute('href');
+        const botonUrl = new URL(botonHref, window.location.origin);
+        const botonPath = botonUrl.pathname;
+
+        if (botonPath === currentPath) {
+            boton.classList.add('active');
+        } else {
+            boton.classList.remove('active');
+        }
+    });
+}
