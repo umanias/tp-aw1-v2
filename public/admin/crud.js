@@ -11,25 +11,14 @@ let accionActual = accionSelect.value;
 // Carga inicial del JSON
 async function cargarDatos() {
   try {
-    // Como fetch no puede escribir en archivo local sin backend, 
-    // para demo usamos fetch y guardamos en localStorage para persistencia
     const resp = await fetch('/resources/datos/tienda.json');
     tiendaDatos = await resp.json();
-
-    // Si hay datos en localStorage (para demo), los usamos
-    const local = localStorage.getItem('tiendaDatos');
-    if (local) tiendaDatos = JSON.parse(local);
-
     mostrarTabla();
   } catch (e) {
     console.error("Error cargando JSON:", e);
     tiendaDatos = { accesorios: [], prendas: [] };
+    mostrarTabla();
   }
-}
-
-// Guardar datos en localStorage para demo
-function guardarDatos() {
-  localStorage.setItem('tiendaDatos', JSON.stringify(tiendaDatos));
 }
 
 // Mostrar tabla según categoría seleccionada
@@ -54,65 +43,88 @@ function actualizarFormulario() {
   if (accionActual === 'eliminar') {
     // Solo pide ID
     formAccion.innerHTML = `
-      <label for="inputId">ID:</label>
-      <input type="number" id="inputId" name="id" required min="1" />
+      <label for=\"inputId\">ID:</label>
+      <input type=\"number\" id=\"inputId\" name=\"id\" required min=\"1\" />
     `;
   } else if (accionActual === 'agregar' || accionActual === 'editar') {
     // ID para editar, pero para agregar no se pide (se auto incrementa)
     if (accionActual === 'editar') {
       formAccion.innerHTML += `
-        <label for="inputId">ID:</label>
-        <input type="number" id="inputId" name="id" required min="1" />
+        <label for=\"inputId\">ID:</label>
+        <input type=\"number\" id=\"inputId\" name=\"id\" required min=\"1\" />
       `;
     }
     formAccion.innerHTML += `
-      <label for="inputNombre">Nombre:</label>
-      <input type="text" id="inputNombre" name="nombre" required />
-      <label for="inputPrecio">Precio:</label>
-      <input type="number" id="inputPrecio" name="precio" required min="0" step="0.01" />
-      <label for="inputImagen">Imagen (URL o nombre archivo):</label>
-      <input type="text" id="inputImagen" name="imagen" required />
+      <label for=\"inputNombre\">Nombre:</label>
+      <input type=\"text\" id=\"inputNombre\" name=\"nombre\" required />
+      <label for=\"inputPrecio\">Precio:</label>
+      <input type=\"number\" id=\"inputPrecio\" name=\"precio\" required min=\"0\" step=\"0.01\" />
+      <label for=\"fileUpload\">Subir archivo (tipo file):</label>
+      <input type=\"file\" id=\"fileUpload\" name=\"fileUpload\" accept=\"*/*\" />
     `;
   }
 }
 
-// Funciones CRUD
-
-function getNuevoId(categoria) {
-  const lista = tiendaDatos[categoria];
-  if (lista.length === 0) return 1;
-  return Math.max(...lista.map(i => i.id)) + 1;
+// Función para leer archivo como base64
+function leerArchivoComoBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
-function agregarProducto(categoria, nombre, precio, imagen) {
-  const nuevoId = getNuevoId(categoria);
-  tiendaDatos[categoria].push({ id: nuevoId, nombre, precio: parseFloat(precio), imagen });
-  guardarDatos();
-  mostrarTabla();
-}
-
-function editarProducto(categoria, id, nombre, precio, imagen) {
-  const lista = tiendaDatos[categoria];
-  const index = lista.findIndex(i => i.id === id);
-  if (index === -1) {
-    alert('No se encontró el producto con ese ID');
+// Funciones CRUD usando backend
+async function agregarProductoBackend(categoria, nombre, precio, imagenFile) {
+  let imagenBase64 = null;
+  let imagenNombre = null;
+  if (imagenFile) {
+    imagenBase64 = await leerArchivoComoBase64(imagenFile);
+    imagenNombre = imagenFile.name;
+  }
+  const body = JSON.stringify({ nombre, precio, imagenBase64, imagenNombre });
+  const resp = await fetch(`/api/${categoria}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body
+  });
+  if (!resp.ok) {
+    alert('Error al agregar producto');
     return;
   }
-  lista[index] = { id, nombre, precio: parseFloat(precio), imagen };
-  guardarDatos();
-  mostrarTabla();
+  await cargarDatos();
 }
 
-function eliminarProducto(categoria, id) {
-  const lista = tiendaDatos[categoria];
-  const index = lista.findIndex(i => i.id === id);
-  if (index === -1) {
-    alert('No se encontró el producto con ese ID');
+async function editarProductoBackend(categoria, id, nombre, precio, imagenFile) {
+  let imagenBase64 = null;
+  let imagenNombre = null;
+  if (imagenFile) {
+    imagenBase64 = await leerArchivoComoBase64(imagenFile);
+    imagenNombre = imagenFile.name;
+  }
+  const body = JSON.stringify({ nombre, precio, imagenBase64, imagenNombre });
+  const resp = await fetch(`/api/${categoria}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body
+  });
+  if (!resp.ok) {
+    alert('Error al editar producto');
     return;
   }
-  lista.splice(index, 1);
-  guardarDatos();
-  mostrarTabla();
+  await cargarDatos();
+}
+
+async function eliminarProductoBackend(categoria, id) {
+  const resp = await fetch(`/api/${categoria}/${id}`, {
+    method: 'DELETE'
+  });
+  if (!resp.ok) {
+    alert('Error al eliminar producto');
+    return;
+  }
+  await cargarDatos();
 }
 
 // Eventos
@@ -128,30 +140,31 @@ accionSelect.addEventListener('change', () => {
 });
 
 // Ejecutar acción al hacer click en el botón
-btnEjecutarAccion.addEventListener('click', e => {
+btnEjecutarAccion.addEventListener('click', async e => {
   e.preventDefault();
   const formData = new FormData(formAccion);
+  const fileInput = formAccion.querySelector('#fileUpload');
+  const imagenFile = fileInput ? fileInput.files[0] : undefined;
 
   if (accionActual === 'agregar') {
     const nombre = formData.get('nombre').trim();
     const precio = formData.get('precio');
-    const imagen = formData.get('imagen').trim();
-    if (!nombre || !precio || !imagen) {
-      alert('Completa todos los campos');
+    if (!nombre || !precio || !imagenFile) {
+      alert('Completa todos los campos y selecciona un archivo');
       return;
     }
-    agregarProducto(categoriaActual, nombre, precio, imagen);
+    await agregarProductoBackend(categoriaActual, nombre, precio, imagenFile);
     formAccion.reset();
   } else if (accionActual === 'editar') {
     const id = parseInt(formData.get('id'));
     const nombre = formData.get('nombre').trim();
     const precio = formData.get('precio');
-    const imagen = formData.get('imagen').trim();
-    if (!id || !nombre || !precio || !imagen) {
+    // imagenFile es opcional en editar
+    if (!id || !nombre || !precio) {
       alert('Completa todos los campos');
       return;
     }
-    editarProducto(categoriaActual, id, nombre, precio, imagen);
+    await editarProductoBackend(categoriaActual, id, nombre, precio, imagenFile);
     formAccion.reset();
   } else if (accionActual === 'eliminar') {
     const id = parseInt(formData.get('id'));
@@ -160,7 +173,7 @@ btnEjecutarAccion.addEventListener('click', e => {
       return;
     }
     if (confirm(`¿Eliminar producto con ID ${id}?`)) {
-      eliminarProducto(categoriaActual, id);
+      await eliminarProductoBackend(categoriaActual, id);
       formAccion.reset();
     }
   }
