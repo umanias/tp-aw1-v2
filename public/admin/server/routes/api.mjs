@@ -1,12 +1,15 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let productos = [];
 
-const filePath = path.resolve('./resources/datos/tienda.json');
+const filePath = path.resolve(__dirname, '../../../client/resources/datos/tienda.json');
 
 async function cargarProductos() {
   try {

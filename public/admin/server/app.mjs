@@ -12,9 +12,13 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, '../html')));
+// Rutas estáticas corregidas
+app.use(express.static(path.join(__dirname, '../../client/html')));
+app.use('/resources', express.static(path.join(__dirname, '../../client/resources')));
+app.use('/admin', express.static(path.join(__dirname, '../')));
 
-app.use('/resources', express.static(path.join(__dirname, '../resources')));
+// API routes
+app.use('/api', apiRouter);
 
 app.listen(PUERTO, () => {
     console.log(`Server is running on http://localhost:${PUERTO}`);
